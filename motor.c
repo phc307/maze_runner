@@ -4,6 +4,7 @@ void motor_forward(motor motor_id);
 void motor_backwardward(motor motor_id);
 void motor_stop(motor motor_id);
 
+////OMGGG
 
 void motor_init(void)
 {

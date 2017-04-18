@@ -1,6 +1,8 @@
 #include "sensor_input.h"
 
 
+// test test123456
+
 void sensor_input_init(void)
 {
 	static GPIO_InitTypeDef  GPIO_InitStruct;

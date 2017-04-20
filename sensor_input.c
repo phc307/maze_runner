@@ -57,7 +57,7 @@ static Read_Distance(sensor sensor_id)
 			}
 		flag = 1;
 		}
-		distance = (disTime * 340)/2.0;
+		distance = (disTime * 34)/2.0; // cm
 		printf("SENSOR_RIGHT-The distance is : %f cm", distance);
 	 	return distance;
 
@@ -79,7 +79,7 @@ static Read_Distance(sensor sensor_id)
 			}
 		flag = 1;
 		}
-		distance = (disTime * 340)/2.0;
+		distance = (disTime * 34)/2.0; // cm
 		printf("SENSOR_LEFT-The distance is : %f cm", distance);
 	 	return distance;
 
@@ -100,7 +100,7 @@ static Read_Distance(sensor sensor_id)
 			}
 		flag = 1;
 		}
-		distance = (disTime * 340)/2.0;
+		distance = (disTime * 34)/2.0; // cm
 		printf("SENSOR_FRONT-The distance is : %f cm", distance);
 	 	return distance;
 

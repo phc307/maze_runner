@@ -6,7 +6,7 @@
 typedef enum {
 	SENSOR_RIGHT;
 	SENSOR_LEFT;
-	SENSOR_MID;
+	SENSOR_FRONT;
 } sensor;
 
 /*
@@ -16,9 +16,7 @@ Right: Sensor #0
 */
 
 void sensor_input_init(void);
-static sensor_right_input();
-static sensor_left_input();
-static sensor_mid_input();
+static Read_Distance(sensor sensor_id);
 void sensor_stop();
 
 #endif

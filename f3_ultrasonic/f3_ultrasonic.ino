@@ -52,39 +52,54 @@
 #define US1_TRIGGER   PE10
 
 #define US2_ECHO      PF6
-#define US2_TRIGGER   PD0
+#define US2_TRIGGER   PA12
 
-#define US3_ECHO      PF9
-#define US3_TRIGGER   PB0
+#define US3_ECHO      PA13
+#define US3_TRIGGER   PA11
 
 #define ShowLED1 PE8
 #define ShowLED2 PE9
-#define ShowLED3 PE10
 
 #define motor1 PD7
+#define motor1_R PD6
 #define motor2 PD4
+#define motor2_R PD3
+
+#define general_speed 3500
+
 HardwareTimer pwmtimer(2);
-uint16 maxduty, duty;
+uint16 maxduty, duty, sduty, duty2, RF_dis;
 uint32 period, mypulse;
+float zangle;
+int flag, i;
 void UsHandler(int id, int entfernung)
 {
 	Print2Number("Sensor", id, entfernung);
 }
-
+uint16 RF_count(){
+  uint16 baseRF_part1 = UsLetzterGueltigerMesswert(0)*UsLetzterGueltigerMesswert(1);
+  uint16 baseRF_part2 = sqrt(pow(UsLetzterGueltigerMesswert(0),2)+pow(UsLetzterGueltigerMesswert(1),2));
+  RF_dis = baseRF_part1/baseRF_part2;
+  return RF_dis;
+}
 
 void setup() 
 {
+  
 	delay(150);
 	debugInit();
 	debugSetTimeStamp(DDEBUG_TIME_STAMP_ON);
 
    Serial1.begin(115200);
+   Serial1.println("START");
 	// Ultraschallsensoren definieren
 	addUSSensor(0, US1_TRIGGER, US1_ECHO, 220);
 	addUSSensor(1, US2_TRIGGER, US2_ECHO, 220);
 	addUSSensor(2, US3_TRIGGER, US3_ECHO, 220);
 
 	UsAttachHandler(0, UsHandler);
+  UsAttachHandler(1, UsHandler);
+  UsAttachHandler(2, UsHandler);
 	UsSetMessPause(100);  // Pause von 100 ms nach jeder Messung
 	                      // damit die Ausgabe im Terminal nicht zu schnell wird
 	                      // Im Normalfall würde keine so lange Pause programmiert werden.
@@ -104,7 +119,7 @@ void setup()
 	PrintUsSensorList();
 
 	// ab jetzt wird im Hintergrund gemessen
-
+/*
 	delay(1000);
 	debugPrint("deactivate Sensor 2 ---------------");
 	deaktiviereUSSensor(2);
@@ -129,12 +144,16 @@ void setup()
     debugPrint("activate Sensor 1 ---------------");
 	aktiviereUSSensor(1);
 	PrintUsSensorList();
+  
+  delay(1000);
+  debugPrint("activate Sensor 2 ---------------");
+  aktiviereUSSensor(2);
+  PrintUsSensorList();
 
-
+*/
 	Serial1.println("Programm gestartet");
  pinMode(ShowLED1, OUTPUT);
  pinMode(ShowLED2, OUTPUT);
- pinMode(ShowLED3, OUTPUT);
  pwmtimer.pause();
  period = 10000;
  maxduty = pwmtimer.setPeriod(period);
@@ -142,49 +161,236 @@ void setup()
  pwmtimer.resume(); 
  pinMode(motor1, PWM);
  pinMode(motor2, PWM);
+ pinMode(motor1_R, OUTPUT);
+ pinMode(motor2_R, OUTPUT);
+/*
+    Serial1.println("initial");
+digitalWrite(ShowLED2, HIGH);
+ StandRight(general_speed);
+ 
+   Serial1.println("initial");
+    digitalWrite(ShowLED1, HIGH);
+    delay(750);
+  */
 }
 
 void loop()
 {
-	Print2Number("Sensor 1", UsLetzterGueltigerMesswert(1), UsLetzterGueltigerMesswertAlter(1));
+//	Print2Number("Sensor 2", UsLetzterGueltigerMesswert(1), UsLetzterGueltigerMesswertAlter(1));
+//  Print2Number("Sensor 1", UsLetzterGueltigerMesswert(0), UsLetzterGueltigerMesswertAlter(0));
   Serial1.println("1 : ");
   Serial1.println(UsLetzterGueltigerMesswert(0));
   Serial1.println("2 : ");
   Serial1.println(UsLetzterGueltigerMesswert(1));
   Serial1.println("3 : ");
   Serial1.println(UsLetzterGueltigerMesswert(2));
+  Serial1.println("flag : ");
+  Serial1.println(flag);
   Serial1.println("  ");
+//  zangle = (UsLetzterGueltigerMesswert(0))^2
+
+  if(UsLetzterGueltigerMesswert(0) <= 12 && UsLetzterGueltigerMesswert(0)>=10){
+    
+    //Go Straight
+    if(UsLetzterGueltigerMesswert(1) >20){
+      GoStraight(general_speed);
+    }
+    if(UsLetzterGueltigerMesswert(1) <= 20){
+      //Go Left
+      if(UsLetzterGueltigerMesswert(2) <= 8 && UsLetzterGueltigerMesswert(2) != 0){
+        StandLeft(general_speed);
+        for(i = 0; i<600; i++){
+          if(i%3 == 0){
+            digitalWrite(motor1_R, HIGH);
+            
+  digitalWrite(ShowLED2, HIGH);
+          }else{
+            digitalWrite(motor1_R, LOW);
+          }
+          digitalWrite(motor1_R, LOW);
+  digitalWrite(ShowLED1, HIGH);
+        }
+      }else if(UsLetzterGueltigerMesswert(2) > 8){
+        StandLeft(general_speed);
+        delay(300);
+        TurnLeft(general_speed);
+        delay(280);
+        flag = 2;
+      }
+    }
+  }else if(UsLetzterGueltigerMesswert(0) < 10){
+    
+    if(UsLetzterGueltigerMesswert(1) >20){
+      SlowLeft(general_speed);
+      //TurnLeft(general_speed);
+    }
+    if(UsLetzterGueltigerMesswert(1) <= 20){
+      //Go Left
+      if(UsLetzterGueltigerMesswert(2) <= 8 && UsLetzterGueltigerMesswert(2) != 0){
+        StandLeft(general_speed);
+        for(i = 0; i<600; i++){
+          if(i%3 ==0){
+            digitalWrite(motor1_R, HIGH);
+            
+  digitalWrite(ShowLED2, HIGH);
+          }else{
+            digitalWrite(motor1_R, LOW);
+          }
+          digitalWrite(motor1_R, LOW);
+          
+  digitalWrite(ShowLED1, HIGH);
+        }
+      }else if(UsLetzterGueltigerMesswert(2) > 8){
+        StandLeft(general_speed);
+        delay(300);
+        TurnLeft(general_speed);
+        delay(280);
+        flag = 2;
+      }
+    }
+//    delay(50);
+  }else if(UsLetzterGueltigerMesswert(0) > 19 ){
+    TurnRight(2000);
+//    flag =1;
+//    digitalWrite(ShowLED2, HIGH);
+//    digitalWrite(ShowLED1, LOW);
+  }else if(UsLetzterGueltigerMesswert(0)<=19 && UsLetzterGueltigerMesswert(0)>12){
+    if(UsLetzterGueltigerMesswert(1) >20){
+      SlowRight(2000);
+      //TurnLeft(general_speed);
+    }
+    if(UsLetzterGueltigerMesswert(1) <= 20){
+      //Go Left
+      if(UsLetzterGueltigerMesswert(2) <= 8 && UsLetzterGueltigerMesswert(2) != 0){
+        StandLeft(general_speed);
+        for(i = 0; i<600; i++){
+          if(i%3 == 0){
+            digitalWrite(motor1_R, HIGH);
+            
+  digitalWrite(ShowLED2, HIGH);
+          }else{
+            digitalWrite(motor1_R, LOW);
+            
+  digitalWrite(ShowLED1, HIGH);
+          }
+        }
+        digitalWrite(motor1_R, LOW);
+      }else if(UsLetzterGueltigerMesswert(2) > 8){
+        StandLeft(general_speed);
+        delay(300);
+        TurnLeft(general_speed);
+        delay(250);
+        flag = 2;
+      }
+    }
+  }
+  //else{
+        /*else if(UsLetzterGueltigerMesswert(0) > 100 && UsLetzterGueltigerMesswert(1) >100){
+    StandLeft(2000);
+  }*/
+  /*if(flag == 1){
+    delay(10);
+    clean_pwm();
+    delay(20);
+    flag = 0;
+  }else if(flag == 2){
+    TurnRight(4000);
+    delay(300);
+  }else{
+    delay(15);
+//    clean_pwm();
+//    delay(10);
+  }*/
+  /*
   if(UsLetzterGueltigerMesswert(1)>100){
-//  analogWrite(motor1, 255);
-//  analogWrite(motor2, 255);
-  mypulse = 10000;
+    mypulse = 10000;
   }else if(UsLetzterGueltigerMesswert(1)>20){
-//  analogWrite(motor1, 100);
-//  analogWrite(motor2, 100);
-mypulse = 5000;
+    mypulse = 5000;
   }else if(UsLetzterGueltigerMesswert(1)<20){
-//  analogWrite(motor2, 0);
-//  analogWrite(motor1, 0);
-mypulse = 0;
+    mypulse = 0;
   }
   duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
   pwmWrite(motor1, duty);
   pwmWrite(motor2, duty);
-    /*
-  if(UsLetzterGueltigerMesswert(1)== 0){
-    digitalWrite(ShowLED1, HIGH);
-    digitalWrite(ShowLED2, LOW);
-    digitalWrite(ShowLED3, LOW);
-  }else if(UsLetzterGueltigerMesswert(1)<1){
-    digitalWrite(ShowLED1, HIGH);
-    digitalWrite(ShowLED2, HIGH);
-    digitalWrite(ShowLED3, LOW);
-  }else if(UsLetzterGueltigerMesswert(1)<4){
-    digitalWrite(ShowLED1, HIGH);
-    digitalWrite(ShowLED2, HIGH);
-    digitalWrite(ShowLED3, HIGH);
-  }
-    delay(300);
-*/  
+*/
+
+if(flag == 2){
+    TurnRight(4000);
+    delay(20);
+    flag = 0;
+}
+}
+void TurnRight(uint32 mypulse){
+  /*
+  duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
+  pwmWrite(motor1, duty/2);
+  pwmWrite(motor2, duty*0.9);
+  */
+//  void TurnRight(uint32 mypulse){ //BROWN CAR, MY BOARD, PROTOTYPE TurnRight(2020); delay(400);
+  duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
+  duty2 = map((int32)mypulse+500, 0, (int32)period, 0, (int32)maxduty);
+  //GoStraight(4000);
+/*  if (UsLetzterGueltigerMesswert(0)<=10 || RF_count()<=10 ){
+    TurnLeft(1000);
+    delay(15);
+  }else*/ 
+  pwmWrite(motor1, int(duty2*0.6)); // 0.6也可用測到的距離成反比
+  pwmWrite(motor2, int(duty*1.5));
+//  Serial1.println("right");
+  
+
+//  pwmWrite(motor1_R, 0);
+//  pwmWrite(motor2_R, 0);
+  
+}
+void TurnLeft(uint32 mypulse){
+  duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
+  duty2 = map((int32)mypulse+500, 0, (int32)period, 0, (int32)maxduty);
+  pwmWrite(motor1, duty2);
+  pwmWrite(motor2, duty/2);
+//  pwmWrite(motor1_R, 0);
+//  pwmWrite(motor2_R, 0);
+}
+void SlowLeft(uint32 mypulse){
+  duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
+  duty2 = map((int32)mypulse+500, 0, (int32)period, 0, (int32)maxduty);
+  pwmWrite(motor1, duty2);
+  pwmWrite(motor2, int(duty*0.65));
+//  pwmWrite(motor1_R, 0);
+//  pwmWrite(motor2_R, 0);
+}
+void SlowRight(uint32 mypulse){
+  duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
+  duty2 = map((int32)mypulse+500, 0, (int32)period, 0, (int32)maxduty);
+  pwmWrite(motor1, int(duty2*0.8)); // 0.6也可用測到的距離成反比
+  pwmWrite(motor2, duty);
+//  pwmWrite(motor1_R, 0);
+//  pwmWrite(motor2_R, 0);
+}
+void GoStraight(uint32 mypulse){
+  duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
+  digitalWrite(ShowLED1, LOW);
+  pwmWrite(motor1, duty);
+  pwmWrite(motor2, duty);
+//  pwmWrite(motor1_R, 0);
+//  pwmWrite(motor2_R, 0);
+}
+void StandRight(uint32 mypulse){
+  duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
+  pwmWrite(motor1, 0);
+  pwmWrite(motor2, duty);
+//  pwmWrite(motor1_R, duty);
+//  pwmWrite(motor2_R, 0);
+}
+void StandLeft(uint32 mypulse){
+  duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
+  pwmWrite(motor1, duty);
+  pwmWrite(motor2, 0);
+//  pwmWrite(motor1_R, 0);
+//  pwmWrite(motor2_R, duty);
+}
+void clean_pwm(){
+  pwmWrite(motor1, 0);
+  pwmWrite(motor2, 0);
 }
 

@@ -65,7 +65,7 @@
 #define motor2 PD4
 #define motor2_R PD3
 
-#define general_speed 3500
+#define general_speed 2700
 
 HardwareTimer pwmtimer(2);
 uint16 maxduty, duty, sduty, duty2, RF_dis;
@@ -189,98 +189,124 @@ void loop()
   Serial1.println("  ");
 //  zangle = (UsLetzterGueltigerMesswert(0))^2
 
-  if(UsLetzterGueltigerMesswert(0) <= 12 && UsLetzterGueltigerMesswert(0)>=10){
+  if(UsLetzterGueltigerMesswert(0) <= 13 && UsLetzterGueltigerMesswert(0)>=10){
     
     //Go Straight
-    if(UsLetzterGueltigerMesswert(1) >20){
+    if(UsLetzterGueltigerMesswert(1) >18){
       GoStraight(general_speed);
     }
-    if(UsLetzterGueltigerMesswert(1) <= 20){
+    if(UsLetzterGueltigerMesswert(1) <= 18){
       //Go Left
-      if(UsLetzterGueltigerMesswert(2) <= 8 && UsLetzterGueltigerMesswert(2) != 0){
-        StandLeft(general_speed);
-        for(i = 0; i<600; i++){
+      if(UsLetzterGueltigerMesswert(2) <= 18 && UsLetzterGueltigerMesswert(2) != 0){
+        clean_pwm();
+        StandRight(2000);
+        for(i = 0; i<50; i++){
           if(i%3 == 0){
             digitalWrite(motor1_R, HIGH);
+            delay(20);
             
   digitalWrite(ShowLED2, HIGH);
           }else{
             digitalWrite(motor1_R, LOW);
+            delay(20);
           }
           digitalWrite(motor1_R, LOW);
   digitalWrite(ShowLED1, HIGH);
         }
-      }else if(UsLetzterGueltigerMesswert(2) > 8){
-        StandLeft(general_speed);
+        clean_pwm();
+        delay(1000);
+        
+        GoStraight(3500);
         delay(300);
+      }else if(UsLetzterGueltigerMesswert(2) > 18){
+        StandLeft(general_speed);
+        delay(490);
         TurnLeft(general_speed);
-        delay(280);
+        delay(200);
         flag = 2;
+//        clean_pwm();
+//        delay(1000);
       }
     }
   }else if(UsLetzterGueltigerMesswert(0) < 10){
     
-    if(UsLetzterGueltigerMesswert(1) >20){
+    if(UsLetzterGueltigerMesswert(1) >18){
       SlowLeft(general_speed);
       //TurnLeft(general_speed);
     }
-    if(UsLetzterGueltigerMesswert(1) <= 20){
+    if(UsLetzterGueltigerMesswert(1) <= 18){
       //Go Left
-      if(UsLetzterGueltigerMesswert(2) <= 8 && UsLetzterGueltigerMesswert(2) != 0){
-        StandLeft(general_speed);
-        for(i = 0; i<600; i++){
+      if(UsLetzterGueltigerMesswert(2) <= 18 && UsLetzterGueltigerMesswert(2) != 0){
+        StandRight(2000);
+        for(i = 0; i<50; i++){
           if(i%3 ==0){
             digitalWrite(motor1_R, HIGH);
-            
+            delay(20);
   digitalWrite(ShowLED2, HIGH);
           }else{
             digitalWrite(motor1_R, LOW);
+            delay(20);
           }
           digitalWrite(motor1_R, LOW);
           
   digitalWrite(ShowLED1, HIGH);
         }
-      }else if(UsLetzterGueltigerMesswert(2) > 8){
-        StandLeft(general_speed);
+        
+        clean_pwm();
+        delay(1000);
+        GoStraight(3500);
         delay(300);
+      }else if(UsLetzterGueltigerMesswert(2) > 18){
+        StandLeft(general_speed);
+        delay(440);
         TurnLeft(general_speed);
-        delay(280);
+        delay(200);
         flag = 2;
+//        clean_pwm();
+//        delay(1000);
       }
     }
 //    delay(50);
-  }else if(UsLetzterGueltigerMesswert(0) > 19 ){
-    TurnRight(2000);
+  }else if(UsLetzterGueltigerMesswert(0) > 25 ){
+    TurnRight(1700);
 //    flag =1;
 //    digitalWrite(ShowLED2, HIGH);
 //    digitalWrite(ShowLED1, LOW);
-  }else if(UsLetzterGueltigerMesswert(0)<=19 && UsLetzterGueltigerMesswert(0)>12){
-    if(UsLetzterGueltigerMesswert(1) >20){
+  }else if(UsLetzterGueltigerMesswert(0)<=25 && UsLetzterGueltigerMesswert(0)>13){
+    if(UsLetzterGueltigerMesswert(1) >18){
       SlowRight(2000);
       //TurnLeft(general_speed);
     }
-    if(UsLetzterGueltigerMesswert(1) <= 20){
+    if(UsLetzterGueltigerMesswert(1) <= 18){
       //Go Left
-      if(UsLetzterGueltigerMesswert(2) <= 8 && UsLetzterGueltigerMesswert(2) != 0){
-        StandLeft(general_speed);
-        for(i = 0; i<600; i++){
+      if(UsLetzterGueltigerMesswert(2) <= 18 && UsLetzterGueltigerMesswert(2) != 0){
+        
+        StandRight(2000);
+        for(i = 0; i<50; i++){
           if(i%3 == 0){
             digitalWrite(motor1_R, HIGH);
-            
+            delay(20);
   digitalWrite(ShowLED2, HIGH);
           }else{
             digitalWrite(motor1_R, LOW);
-            
+            delay(20);
   digitalWrite(ShowLED1, HIGH);
           }
         }
         digitalWrite(motor1_R, LOW);
-      }else if(UsLetzterGueltigerMesswert(2) > 8){
-        StandLeft(general_speed);
+        
+        clean_pwm();
+        delay(1000);
+        GoStraight(3500);
         delay(300);
+      }else if(UsLetzterGueltigerMesswert(2) > 18){
+        StandLeft(general_speed);
+        delay(440);
         TurnLeft(general_speed);
         delay(250);
         flag = 2;
+//        clean_pwm();
+//        delay(1000);
       }
     }
   }
@@ -334,8 +360,8 @@ void TurnRight(uint32 mypulse){
     TurnLeft(1000);
     delay(15);
   }else*/ 
-  pwmWrite(motor1, int(duty2*0.6)); // 0.6也可用測到的距離成反比
-  pwmWrite(motor2, int(duty*1.5));
+  pwmWrite(motor1, int(duty2*0.65)); // 0.6也可用測到的距離成反比
+  pwmWrite(motor2, int(duty*1.7));
 //  Serial1.println("right");
   
 
@@ -355,23 +381,23 @@ void SlowLeft(uint32 mypulse){
   duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
   duty2 = map((int32)mypulse+500, 0, (int32)period, 0, (int32)maxduty);
   pwmWrite(motor1, duty2);
-  pwmWrite(motor2, int(duty*0.65));
+  pwmWrite(motor2, int(duty*0.76));
 //  pwmWrite(motor1_R, 0);
 //  pwmWrite(motor2_R, 0);
 }
 void SlowRight(uint32 mypulse){
   duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
   duty2 = map((int32)mypulse+500, 0, (int32)period, 0, (int32)maxduty);
-  pwmWrite(motor1, int(duty2*0.8)); // 0.6也可用測到的距離成反比
-  pwmWrite(motor2, duty);
+  pwmWrite(motor1, int(duty2*0.97)); // 0.6也可用測到的距離成反比
+  pwmWrite(motor2, int(duty*1.4));
 //  pwmWrite(motor1_R, 0);
 //  pwmWrite(motor2_R, 0);
 }
 void GoStraight(uint32 mypulse){
   duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
   digitalWrite(ShowLED1, LOW);
-  pwmWrite(motor1, duty);
-  pwmWrite(motor2, duty);
+  pwmWrite(motor1, int(duty));
+  pwmWrite(motor2, int(duty));
 //  pwmWrite(motor1_R, 0);
 //  pwmWrite(motor2_R, 0);
 }

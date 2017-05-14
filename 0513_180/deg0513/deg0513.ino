@@ -210,6 +210,7 @@ void loop()
           digitalWrite(motor1_R, LOW);
   digitalWrite(ShowLED1, HIGH);
         }
+        flag = 3;
       }else if(UsLetzterGueltigerMesswert(2) > 8){
         StandLeft(general_speed);
         delay(300);
@@ -252,8 +253,6 @@ void loop()
   }else if(UsLetzterGueltigerMesswert(0) > 19 ){
     TurnRight(2000);
 //    flag =1;
-//    digitalWrite(ShowLED2, HIGH);
-//    digitalWrite(ShowLED1, LOW);
   }else if(UsLetzterGueltigerMesswert(0)<=19 && UsLetzterGueltigerMesswert(0)>12){
     if(UsLetzterGueltigerMesswert(1) >20){
       SlowRight(2000);
@@ -284,10 +283,6 @@ void loop()
       }
     }
   }
-  //else{
-        /*else if(UsLetzterGueltigerMesswert(0) > 100 && UsLetzterGueltigerMesswert(1) >100){
-    StandLeft(2000);
-  }*/
   /*if(flag == 1){
     delay(10);
     clean_pwm();
@@ -314,18 +309,47 @@ void loop()
   pwmWrite(motor2, duty);
 */
 
-if(flag == 2){
+  if(flag == 2){
     TurnRight(4000);
     delay(20);
     flag = 0;
-}
+  }else if(flag == 3){
+    clean_pwm();
+    digitalWrite(motor2_R, HIGH);
+    digitalWrite(motor1_R, HIGH);
+    delay(10);
+    digitalWrite(motor2_R, LOW);
+    digitalWrite(motor1_R, LOW);
+    delay(20);
+    if(UsLetzterGueltigerMesswert(0) < 6){
+      SlowRight(2000);
+      delay(10);
+    }else if(UsLetzterGueltigerMesswert(2) < 6){
+      SlowLeft(2000);
+      delay(10);
+    }
+    if(UsLetzterGueltigerMesswert(2) > 12){
+      delay(100);
+      digitalWrite(motor2_R, LOW);
+      digitalWrite(motor1_R, LOW);
+      StandLeft(general_speed);
+      delay(300);
+      TurnLeft(general_speed);
+      delay(250);
+      flag = 0;
+    }else if(UsLetzterGueltigerMesswert(0) > 12 && UsLetzterGueltigerMesswert(2) <= 12){
+      digitalWrite(motor1_R, LOW);
+      delay(100);
+      digitalWrite(motor2_R, LOW);
+      StandLeft(general_speed);
+      delay(300);
+      TurnLeft(general_speed);
+      delay(250);
+      flag = 0;
+    }
+  }
 }
 void TurnRight(uint32 mypulse){
-  /*
-  duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
-  pwmWrite(motor1, duty/2);
-  pwmWrite(motor2, duty*0.9);
-  */
 //  void TurnRight(uint32 mypulse){ //BROWN CAR, MY BOARD, PROTOTYPE TurnRight(2020); delay(400);
   duty = map((int32)mypulse, 0, (int32)period, 0, (int32)maxduty);
   duty2 = map((int32)mypulse+500, 0, (int32)period, 0, (int32)maxduty);

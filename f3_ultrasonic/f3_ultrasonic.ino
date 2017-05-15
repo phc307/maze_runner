@@ -72,6 +72,7 @@ uint16 maxduty, duty, sduty, duty2, RF_dis;
 uint32 period, mypulse;
 float zangle;
 int flag, i, RightFlag, TooRightFlag, TooLeftFlag;
+int start = 1;
 void UsHandler(int id, int entfernung)
 {
 	Print2Number("Sensor", id, entfernung);
@@ -180,6 +181,7 @@ digitalWrite(ShowLED2, HIGH);
   GoStraight(general_speed);
   delay(100);
 */
+
 }
 
 void loop()
@@ -196,7 +198,20 @@ void loop()
   Serial1.println(flag);
   Serial1.println("  ");
 //  zangle = (UsLetzterGueltigerMesswert(0))^2
-
+  if(start == 1){
+      while(UsLetzterGueltigerMesswert(0) > 20){
+        StandRight(4000);
+        delay(80);
+        clean_pwm();
+        delay(100);
+      }
+      
+    clean_pwm();
+    GoStraight(4000);
+    delay(5);
+    start = 0;
+  }
+  
   if(UsLetzterGueltigerMesswert(0) <= 10 && UsLetzterGueltigerMesswert(0)>=9){
     
     //Go Straight
@@ -209,7 +224,7 @@ void loop()
         if(UsLetzterGueltigerMesswert(2)>=UsLetzterGueltigerMesswert(0)){
         
         StandLeft(2000);
-        for(i = 0; i<38; i++){
+        for(i = 0; i<41; i++){
           if(i%3 ==0){
             digitalWrite(motor2_R, HIGH);
             delay(20);
@@ -224,7 +239,7 @@ void loop()
         }
         }else if(UsLetzterGueltigerMesswert(0)>UsLetzterGueltigerMesswert(2)){
         StandRight(2000);
-        for(i = 0; i<37; i++){
+        for(i = 0; i<43; i++){
           if(i%3 ==0){
             digitalWrite(motor1_R, HIGH);
             delay(20);
@@ -245,7 +260,7 @@ void loop()
         delay(250);
       }else if(UsLetzterGueltigerMesswert(2) > 18){
         StandLeft(general_speed);
-        delay(510);
+        delay(540);
         TurnLeft(general_speed);
         delay(50);
         flag = 2;
@@ -282,7 +297,7 @@ void loop()
         if(UsLetzterGueltigerMesswert(2)>=UsLetzterGueltigerMesswert(0)){
         
         StandLeft(2000);
-        for(i = 0; i<38; i++){
+        for(i = 0; i<41; i++){
           if(i%3 ==0){
             digitalWrite(motor2_R, HIGH);
             delay(20);
@@ -297,7 +312,7 @@ void loop()
         }
         }else if(UsLetzterGueltigerMesswert(0)>UsLetzterGueltigerMesswert(2)){
         StandRight(2000);
-        for(i = 0; i<37; i++){
+        for(i = 0; i<43; i++){
           if(i%3 ==0){
             digitalWrite(motor1_R, HIGH);
             delay(20);
@@ -318,7 +333,7 @@ void loop()
         
       }else if(UsLetzterGueltigerMesswert(2) > 18){
         StandLeft(general_speed);
-        delay(500);
+        delay(550);
         TurnLeft(general_speed);
         delay(50);
         flag = 2;
@@ -353,7 +368,7 @@ void loop()
         if(UsLetzterGueltigerMesswert(2)>=UsLetzterGueltigerMesswert(0)){
         
         StandLeft(2000);
-        for(i = 0; i<38; i++){
+        for(i = 0; i<41; i++){
           if(i%3 ==0){
             digitalWrite(motor2_R, HIGH);
             delay(20);
@@ -368,7 +383,7 @@ void loop()
         }
         }else if(UsLetzterGueltigerMesswert(0)>UsLetzterGueltigerMesswert(2)){
         StandRight(2000);
-        for(i = 0; i<37; i++){
+        for(i = 0; i<43; i++){
           if(i%3 ==0){
             digitalWrite(motor1_R, HIGH);
             delay(20);
@@ -403,8 +418,8 @@ void loop()
        
 
 if(flag == 2){
-    TurnRight(4000);
-    delay(20);
+    GoStraight(4000);
+    delay(5);
     flag = 0;
 }
 }
